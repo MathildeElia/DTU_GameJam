@@ -98,6 +98,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -110,12 +123,43 @@ TextureImporter:
         width: 191
         height: 292
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
-      physicsShape: []
-      tessellationDetail: -1
+      physicsShape:
+      - - {x: 91.5, y: -141}
+        - {x: 91.5, y: -133}
+        - {x: 89.5, y: -103}
+        - {x: 90.5, y: 61}
+        - {x: 91.5, y: 62}
+        - {x: 91.5, y: 138}
+        - {x: 80.5, y: 145}
+        - {x: 50.5, y: 145}
+        - {x: 32.5, y: 144}
+        - {x: -1.5, y: 145}
+        - {x: -86.5, y: 145}
+        - {x: -89.5, y: 137}
+        - {x: -90.5, y: 105}
+        - {x: -91.5, y: 40}
+        - {x: -91.5, y: 16}
+        - {x: -89.5, y: -14}
+        - {x: -91.5, y: -45}
+        - {x: -91.5, y: -79}
+        - {x: -90.5, y: -134}
+        - {x: -90.5, y: -140}
+        - {x: -77.5, y: -144}
+        - {x: 87.5, y: -144}
+      - - {x: 57.5, y: 60}
+        - {x: 60.5, y: 60}
+        - {x: 59.5, y: 58}
+      - - {x: 66.5, y: -131}
+        - {x: 65.5, y: -131}
+        - {x: 66.5, y: -129}
+        - {x: 67.5, y: -130}
+        - {x: 68.5, y: -130}
+        - {x: 68.5, y: -132}
+      tessellationDetail: 0.083
       bones: []
       spriteID: 8b44283089f9a6870800000000000000
       internalID: 8676923107325396152
@@ -127,7 +171,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 793f028d85ea15707b831321233bcd0b
     internalID: 0
     vertices: []
     indices: 
