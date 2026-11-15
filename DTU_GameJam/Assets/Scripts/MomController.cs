@@ -2,9 +2,11 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(VisionCone))]
 public class MomController : MonoBehaviour
 {
+    [Header("Vision")]
+    public VisionCone vision;         // the cone on the child object (VisionOrigin)
+
     [Header("Path")]
     public Transform entryPoint;
     public Transform standPoint;
@@ -16,6 +18,8 @@ public class MomController : MonoBehaviour
     public float leftAngle = 60f;     // screen-left when she faces up
 
     [Header("Timing")]
+    public float startDelay = 1f;         // wait after the timer ends, before she walks in
+    public float arriveDelay = 0.5f;      // pause once she's in place, cone still off
     public float lookCenterTime = 0.8f;   // pause looking at the middle
     public float toRightDuration = 1.5f;  // center -> right
     public float pauseAtSide = 0.4f;
@@ -24,26 +28,24 @@ public class MomController : MonoBehaviour
 
     public event Action Spotted;
     public event Action ScanFinished;
-
-    VisionCone vision;
-    bool caught;
     public Transform CaughtTarget { get; private set; }
-    
-    public float startDelay = 1f;      // wait after the timer ends, before she walks in
-    public float arriveDelay = 0.5f;   // pause once she's in place, before the cone turns on
+
+    Transform cone;                   // the object that actually rotates
+    bool caught;
 
     void Awake()
     {
-        vision = GetComponent<VisionCone>();
+        cone = vision.transform;
         vision.active = false;
         if (entryPoint) transform.position = entryPoint.position;
-        transform.rotation = Quaternion.Euler(0, 0, centerAngle);
+        cone.rotation = Quaternion.Euler(0, 0, centerAngle);
     }
 
     public void StartScan() => StartCoroutine(ScanRoutine());
 
     IEnumerator ScanRoutine()
     {
+        // 0. short beat before she appears
         yield return new WaitForSeconds(startDelay);
 
         // 1. walk in
@@ -82,29 +84,27 @@ public class MomController : MonoBehaviour
         for (float t = 0f; t < duration; t += Time.deltaTime)
         {
             float a = Mathf.Lerp(from, to, Mathf.SmoothStep(0, 1, t / duration));
-            transform.rotation = Quaternion.Euler(0, 0, a);
-            if (vision.CanSeeTarget)
-            {
-                caught = true;
-                CaughtTarget = vision.SeenTarget ? vision.SeenTarget.transform : null;
-                yield break;
-            }            
+            cone.rotation = Quaternion.Euler(0, 0, a);
+            if (CheckCaught()) yield break;
             yield return null;
         }
-        transform.rotation = Quaternion.Euler(0, 0, to);
+        cone.rotation = Quaternion.Euler(0, 0, to);
     }
 
     IEnumerator Hold(float seconds)
     {
         for (float t = 0f; t < seconds; t += Time.deltaTime)
         {
-            if (vision.CanSeeTarget)
-            {
-                caught = true;
-                CaughtTarget = vision.SeenTarget ? vision.SeenTarget.transform : null;
-                yield break;
-            }
+            if (CheckCaught()) yield break;
             yield return null;
         }
+    }
+
+    bool CheckCaught()
+    {
+        if (!vision.CanSeeTarget) return false;
+        caught = true;
+        CaughtTarget = vision.SeenTarget ? vision.SeenTarget.transform : null;
+        return true;
     }
 }

@@ -81,16 +81,23 @@ public class VisionCone : MonoBehaviour
         }
         return false;
     }
-
+    
     void DrawCone()
     {
-        // outline: origin -> arc -> back to origin
+        // compensate for parent scale so the drawn length always matches viewDistance
+        Vector3 s = transform.lossyScale;
+        Vector3 inv = new Vector3(
+            s.x != 0 ? 1f / s.x : 1f,
+            s.y != 0 ? 1f / s.y : 1f,
+            1f);
+
         line.positionCount = arcSegments + 2;
         line.SetPosition(0, Vector3.zero);
         for (int i = 0; i <= arcSegments; i++)
         {
             float a = Mathf.Lerp(-viewAngle * 0.5f, viewAngle * 0.5f, i / (float)arcSegments);
-            line.SetPosition(i + 1, Quaternion.Euler(0, 0, a) * Vector3.up * viewDistance);
+            Vector3 p = Quaternion.Euler(0, 0, a) * Vector3.up * viewDistance;
+            line.SetPosition(i + 1, Vector3.Scale(p, inv));
         }
     }
 }
