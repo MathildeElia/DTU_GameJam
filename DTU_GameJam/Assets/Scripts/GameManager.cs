@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public int levelNumber = 1;   // set to 1, 2, 3... in each level's Inspector
     public enum State { Intro, Countdown, Scanning, Won, Lost }
     public State state { get; private set; }
 
@@ -132,6 +133,7 @@ public class GameManager : MonoBehaviour
         if (state != State.Scanning) return;
         state = State.Won;
         timerText.text = "";
+        Progress.CompleteLevel(levelNumber);
         winPanel.SetActive(true);
     }
 

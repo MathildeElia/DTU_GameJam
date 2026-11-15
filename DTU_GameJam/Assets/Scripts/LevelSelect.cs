@@ -14,9 +14,10 @@ public class LevelSelect : MonoBehaviour
             string sceneName = $"Level_{i + 1:00}";   // Level_01, Level_02, ...
             Button button = levelButtons[i];
 
-            // Enabled only if that scene exists in the Build Profiles scene list
-            button.interactable = Application.CanStreamedLevelBeLoaded(sceneName);
-
+            button.interactable =
+                Application.CanStreamedLevelBeLoaded(sceneName) &&
+                (i + 1) <= Progress.HighestUnlocked;
+            
             button.onClick.AddListener(() => SceneManager.LoadScene(sceneName));
         }
     }
