@@ -3,6 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class VisionCone : MonoBehaviour
 {
+    public Collider2D SeenTarget { get; private set; }
+
     [Header("Vision")]
     public float viewDistance = 5f;
     [Range(1, 360)] public float viewAngle = 70f;
@@ -21,6 +23,8 @@ public class VisionCone : MonoBehaviour
 
     LineRenderer line;
     const int arcSegments = 24;
+    
+    public bool active = true;  
 
     void Awake()
     {
@@ -34,6 +38,14 @@ public class VisionCone : MonoBehaviour
 
     void Update()
     {
+        line.enabled = active;
+        if (!active)
+        {
+            CanSeeTarget = false;
+            if (alertIndicator) alertIndicator.SetActive(false);
+            return;
+        }
+
         if (sweepSpeed != 0f)
             transform.Rotate(0f, 0f, sweepSpeed * Time.deltaTime);
 
@@ -46,11 +58,12 @@ public class VisionCone : MonoBehaviour
 
         DrawCone();
     }
-
+    
     bool ScanForTargets()
     {
+        SeenTarget = null;
         Vector2 origin = transform.position;
-        Vector2 forward = transform.up;   // the NPC "faces" its local up axis
+        Vector2 forward = transform.up;
 
         foreach (Collider2D col in Physics2D.OverlapCircleAll(origin, viewDistance, targetMask))
         {
@@ -63,6 +76,7 @@ public class VisionCone : MonoBehaviour
             if (Physics2D.Raycast(origin, toTarget.normalized, toTarget.magnitude, obstacleMask))
                 continue;
 
+            SeenTarget = col;   
             return true;
         }
         return false;

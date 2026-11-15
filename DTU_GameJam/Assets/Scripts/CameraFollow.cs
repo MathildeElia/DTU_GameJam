@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(Camera))]
 public class CameraFollow : MonoBehaviour
@@ -9,36 +10,74 @@ public class CameraFollow : MonoBehaviour
     public Collider2D stageBounds;
 
     Camera cachedCamera;
+    
+    public float zoomSpeed = 2f;
+    float targetSize;
+    
+    public void SetTarget(Transform newTarget) => target = newTarget;
+    public void ZoomTo(float size) => targetSize = size;
+    
+    Vector3 shakeOffset;
+    Vector3 appliedShake;
+    Coroutine shakeRoutine;
 
     void Awake()
     {
         cachedCamera = GetComponent<Camera>();
+        targetSize = cachedCamera.orthographicSize;
     }
 
     void LateUpdate()
     {
-        if (target == null)
-            return;
+        transform.position -= appliedShake;
 
-        Vector3 targetPosition = new Vector3(
-            target.position.x,
-            target.position.y,
-            transform.position.z
-        );
+        cachedCamera.orthographicSize = Mathf.Lerp(
+            cachedCamera.orthographicSize, targetSize, zoomSpeed * Time.deltaTime);
 
-        if (stageBounds != null)
-            targetPosition = ClampToStage(targetPosition);
+        if (target != null)
+        {
+            Vector3 targetPosition = new Vector3(
+                target.position.x, target.position.y, transform.position.z);
 
-        Vector3 smoothedPosition = Vector3.Lerp(
-            transform.position,
-            targetPosition,
-            smoothSpeed * Time.deltaTime
-        );
+            if (stageBounds != null)
+                targetPosition = ClampToStage(targetPosition);
 
-        transform.position = stageBounds != null
-            ? ClampToStage(smoothedPosition)
-            : smoothedPosition;
+            Vector3 smoothedPosition = Vector3.Lerp(
+                transform.position, targetPosition, smoothSpeed * Time.deltaTime);
+
+            transform.position = stageBounds != null
+                ? ClampToStage(smoothedPosition)
+                : smoothedPosition;
+        }
+
+        appliedShake = shakeOffset;
+        transform.position += appliedShake;
     }
+
+    public void SnapZoom(float size)
+    {
+        targetSize = size;
+        cachedCamera.orthographicSize = size;
+    }
+
+    public void Shake(float duration, float magnitude)
+    {
+        if (shakeRoutine != null) StopCoroutine(shakeRoutine);
+        shakeRoutine = StartCoroutine(ShakeRoutine(duration, magnitude));
+    }
+
+    IEnumerator ShakeRoutine(float duration, float magnitude)
+    {
+        for (float t = 0f; t < duration; t += Time.deltaTime)
+        {
+            Vector2 r = Random.insideUnitCircle * magnitude * (1f - t / duration);
+            shakeOffset = new Vector3(r.x, r.y, 0f);
+            yield return null;
+        }
+        shakeOffset = Vector3.zero;
+        shakeRoutine = null;
+    }
+
 
     Vector3 ClampToStage(Vector3 position)
     {
