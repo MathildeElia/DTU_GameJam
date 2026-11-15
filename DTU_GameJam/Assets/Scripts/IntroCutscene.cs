@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class IntroCutscene : MonoBehaviour
 {
@@ -19,9 +20,17 @@ public class IntroCutscene : MonoBehaviour
     public float zoomOutTime = 1.2f;    // time for the camera to settle before the timer starts
     public float charsPerSecond = 30f;
     
+    [Header("Mom portrait")]
+    public Image momPortrait;
+    public Sprite momCalm;          // shown when the bubble appears
+    public Sprite momYelling;       // shown after the swap point
+    public int swapAtCharacter = 9; // swap once this many characters have been typed
+    
     void Awake()
     {
         if (bubble) bubble.gameObject.SetActive(false);
+        if (momPortrait) momPortrait.gameObject.SetActive(false);
+        
     }
 
     public void Play(Action onDone) => StartCoroutine(Run(onDone));
@@ -33,15 +42,22 @@ public class IntroCutscene : MonoBehaviour
         // 1. start zoomed in on the player
         cameraFollow.SnapZoom(introZoom);
         yield return new WaitForSeconds(startHold);
-
-        // 2. mom yells: shake + speech bubble
+        
+        // 2. mom yells: shake + portrait + speech bubble
         cameraFollow.Shake(shakeDuration, shakeMagnitude);
+
+        momPortrait.sprite = momCalm;
+        momPortrait.gameObject.SetActive(true);
         bubble.gameObject.SetActive(true);
         bubbleText.text = "";
+
+        StartCoroutine(Pop(momPortrait.rectTransform, 0.25f));
         yield return Pop(bubble, 0.25f);
         yield return Typewriter(bubbleText, line);
         yield return new WaitForSeconds(bubbleTime);
+
         bubble.gameObject.SetActive(false);
+        momPortrait.gameObject.SetActive(false);
 
         // 3. zoom back to the normal view, then hand over to the game
         cameraFollow.ZoomTo(normalSize);
@@ -53,15 +69,17 @@ public class IntroCutscene : MonoBehaviour
     // scales the bubble in with a small overshoot
     IEnumerator Pop(RectTransform rt, float duration)
     {
+        Vector3 baseScale = rt.localScale;   // whatever you set in the editor
         const float c1 = 1.70158f, c3 = c1 + 1f;
+
         for (float t = 0f; t < duration; t += Time.deltaTime)
         {
             float k = t / duration - 1f;
             float s = 1f + c3 * k * k * k + c1 * k * k;
-            rt.localScale = Vector3.one * s;
+            rt.localScale = baseScale * s;
             yield return null;
         }
-        rt.localScale = Vector3.one;
+        rt.localScale = baseScale;
     }
     
     IEnumerator Typewriter(TMP_Text text, string message)
@@ -77,6 +95,12 @@ public class IntroCutscene : MonoBehaviour
         for (int i = 1; i <= total; i++)
         {
             text.maxVisibleCharacters = i;
+
+            if (i == swapAtCharacter && momPortrait && momYelling)
+            {
+                momPortrait.sprite = momYelling;
+            }
+            
             char c = message[Mathf.Min(i - 1, message.Length - 1)];
             if (c == '!' || c == '.' || c == ',') yield return new WaitForSeconds(0.15f);
             yield return new WaitForSeconds(delay);
