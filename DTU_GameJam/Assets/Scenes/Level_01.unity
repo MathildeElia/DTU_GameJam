@@ -4135,7 +4135,7 @@ MonoBehaviour:
   momPortrait: {fileID: 991820455}
   momCalm: {fileID: -6769720872050937667, guid: 099cfc476464b674abbb047c9b026e25, type: 3}
   momYelling: {fileID: 6109384599777756717, guid: f66501d2b9d24064c930d4c9a2164d2b, type: 3}
-  swapAtCharacter: 44
+  swapAtCharacter: 50
 --- !u!4 &2108794763
 Transform:
   m_ObjectHideFlags: 0
